@@ -4,6 +4,15 @@ import cors from "cors";
 import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import errorHandler from "./src/middleware/errorHandler.js";
+import skillRoutes from "./src/routes/skillRoutes.js";
+import exchangeRoutes from "./src/routes/exchangeRoutes.js";
+
+
+
+
+
+
+
 dotenv.config();
 
 const app = express();
@@ -19,6 +28,9 @@ app.use("/api/auth", authRoutes);
 app.get("/", (req, res) => {
     res.send("SkillSwap API is running...");
   });
+app.use("/api/skills", skillRoutes);
+app.use("/api/exchanges", exchangeRoutes);
+
 
 
 
