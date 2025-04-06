@@ -7,6 +7,7 @@ import errorHandler from "./src/middleware/errorHandler.js";
 import skillRoutes from "./src/routes/skillRoutes.js";
 import exchangeRoutes from "./src/routes/exchangeRoutes.js";
 import messageRoutes from "./src/routes/messageRoutes.js";
+import reviewRoutes from "./src/routes/reviewRoutes.js";
 import { Server } from "socket.io";
 import http from "http";
 
@@ -28,6 +29,7 @@ connectDB();
 app.use(errorHandler);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/reviews", reviewRoutes); 
 app.get("/", (req, res) => {
     res.send("SkillSwap API is running...");
   });
