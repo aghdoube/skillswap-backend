@@ -1,5 +1,5 @@
 import express from "express";
-import {requestExchange, getUserExchanges} from "../controllers/exchangeController.js";
+import {requestExchange, getUserExchanges} from "../controller/exchangeController.js";
 import {protection} from "../middleware/authMiddleware.js";
 
 

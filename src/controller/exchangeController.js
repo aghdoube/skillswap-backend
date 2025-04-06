@@ -1,7 +1,6 @@
-import Exchange from '../models/exchangeModel.js';
+import Exchange from '../models/Exchange.js';
 
 
-import Exchange from "../models/Exchange.js";
 
 export const requestExchange = async (req, res, next) => {
     try {
