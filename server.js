@@ -6,6 +6,9 @@ import authRoutes from "./src/routes/authRoutes.js";
 import errorHandler from "./src/middleware/errorHandler.js";
 import skillRoutes from "./src/routes/skillRoutes.js";
 import exchangeRoutes from "./src/routes/exchangeRoutes.js";
+import messageRoutes from "./src/routes/messageRoutes.js";
+import { Server } from "socket.io";
+import http from "http";
 
 
 
@@ -30,7 +33,7 @@ app.get("/", (req, res) => {
   });
 app.use("/api/skills", skillRoutes);
 app.use("/api/exchanges", exchangeRoutes);
-
+app.use("/api/messages", messageRoutes);
 
 
 
