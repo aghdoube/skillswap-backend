@@ -22,6 +22,13 @@ SkillSwap is a platform that allows users to exchange skills and knowledge with 
 ### Messaging System:
 - Users can send and receive messages during the skill exchange process.
 
+### Notifications:
+- Users receive notifications for skill exchange updates, messages, and more.
+- Notifications can be marked as read.
+
+### Location-Based Filtering:
+- Users can be filtered based on their geographical location.
+
 ### Review and Rating System:
 - Users can leave reviews for each other after completing a skill exchange.
 - Reviews include a rating (1 to 5 stars) and optional comments.
@@ -235,6 +242,142 @@ Response:
 }
 ```
 
+### 5. Notifications API
+
+#### POST /notifications
+Create a new notification for a user.
+
+Request body:
+```json
+{
+  "userId": "66145c7b9f8f2e001fb5a3c2",
+  "type": "message",
+  "message": "You have a new message!"
+}
+```
+
+Response:
+```json
+{
+  "_id": "66145d8b9f8f2e001fb5a3c3",
+  "userId": "66145c7b9f8f2e001fb5a3c2",
+  "type": "message",
+  "message": "You have a new message!",
+  "status": "unread",
+  "createdAt": "2025-04-08T12:00:00.000Z"
+}
+```
+
+#### GET /notifications/:userId
+Retrieve all notifications for a user.
+
+Response:
+```json
+[
+  {
+    "_id": "66145d8b9f8f2e001fb5a3c3",
+    "userId": "66145c7b9f8f2e001fb5a3c2",
+    "type": "message",
+    "message": "You have a new message!",
+    "status": "unread"
+  }
+]
+```
+
+#### PUT /notifications/:id/read
+Mark a notification as read.
+
+Response:
+```json
+{
+  "_id": "66145d8b9f8f2e001fb5a3c3",
+  "status": "read"
+}
+```
+
+### 6. Location API
+
+#### POST /locations
+Add or update a user's location.
+
+Request body:
+```json
+{
+  "userId": "66145c7b9f8f2e001fb5a3c2",
+  "coordinates": {
+    "type": "Point",
+    "coordinates": [77.1025, 28.7041]
+  }
+}
+```
+
+Response:
+```json
+{
+  "_id": "66145e8b9f8f2e001fb5a3c5",
+  "userId": "66145c7b9f8f2e001fb5a3c2",
+  "coordinates": {
+    "type": "Point",
+    "coordinates": [77.1025, 28.7041]
+  }
+}
+```
+
+#### GET /locations/nearby?longitude=X&latitude=Y&maxDistance=Z
+Retrieve users within a specific distance.
+
+Response:
+```json
+[
+  {
+    "_id": "66145e8b9f8f2e001fb5a3c5",
+    "userId": "66145c7b9f8f2e001fb5a3c2",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [77.1025, 28.7041]
+    }
+  }
+]
+```
+*(maxDistance is in meters, so 5000 = 5 km)*
+
+### 7. Category API
+
+#### POST /categories
+Add a new skill category.
+
+Request body:
+```json
+{
+  "name": "Web Development"
+}
+```
+
+Response:
+```json
+{
+  "_id": "66145f8b9f8f2e001fb5a3c7",
+  "name": "Web Development"
+}
+```
+
+#### GET /categories
+Retrieve a list of skill categories.
+
+Response:
+```json
+[
+  {
+    "_id": "66145f8b9f8f2e001fb5a3c7",
+    "name": "Web Development"
+  },
+  {
+    "_id": "66145fa49f8f2e001fb5a3c9",
+    "name": "Graphic Design"
+  }
+]
+```
+
 ## Setup Instructions
 
 ### Prerequisites
@@ -275,7 +418,13 @@ You can test the API using tools like Postman or Insomnia:
 3. Use the JWT token to access the profile at GET /api/auth/profile.
 4. Create and manage exchanges using POST /api/exchanges.
 5. Send messages during exchanges with POST /api/messages.
-6. Add reviews and ratings after completing an exchange at POST /api/reviews.
+6. Add notifications at POST /notifications.
+7. Fetch notifications at GET /notifications/:userId.
+8. Add or update location at POST /locations.
+9. Retrieve nearby users at GET /locations/nearby?longitude=X&latitude=Y&maxDistance=Z.
+10. Add categories at POST /categories.
+11. Fetch categories at GET /categories.
+12. Add reviews and ratings after completing an exchange at POST /api/reviews.
 
 ## Future Features
 - User profile management (update skills, bio, location, etc.)
@@ -287,4 +436,5 @@ You can test the API using tools like Postman or Insomnia:
 - MongoDB (via Mongoose) for data storage
 - JWT for authentication
 - Bcryptjs for password hashing
+- Geospatial Queries for location-based filtering
 - Socket.io for real-time messaging (optional future feature)

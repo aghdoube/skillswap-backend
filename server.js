@@ -8,6 +8,9 @@ import skillRoutes from "./src/routes/skillRoutes.js";
 import exchangeRoutes from "./src/routes/exchangeRoutes.js";
 import messageRoutes from "./src/routes/messageRoutes.js";
 import reviewRoutes from "./src/routes/reviewRoutes.js";
+import notificationRoutes from "./src/routes/notificationRoutes.js";
+import locationRoutes from "./src/routes/locationRoutes.js";
+import categoryRoutes from "./src/routes/categoryRoutes.js";
 import { Server } from "socket.io";
 import http from "http";
 
@@ -36,6 +39,10 @@ app.get("/", (req, res) => {
 app.use("/api/skills", skillRoutes);
 app.use("/api/exchanges", exchangeRoutes);
 app.use("/api/messages", messageRoutes);
+
+app.use("/notifications", notificationRoutes);
+app.use("/locations", locationRoutes);
+app.use("/categories", categoryRoutes);
 
 
 
