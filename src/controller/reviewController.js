@@ -5,7 +5,7 @@ import User from '../models/User.js';
 
 export const createReview = async (req, res, next) => {
     const { reviewee, exchange, rating, comment } = req.body;
-    const reviewer = req.user._id; // Get the current logged-in user ID
+    const reviewer = req.user._id; 
   
     try {
       const exchangeExists = await Exchange.findById(exchange);
@@ -15,7 +15,6 @@ export const createReview = async (req, res, next) => {
         return next(error);
       }
   
-      // Check if the reviewer is the requester or the provider of the exchange
       if (
         exchangeExists.requester.toString() !== reviewer.toString() &&
         exchangeExists.provider.toString() !== reviewer.toString()
@@ -25,18 +24,16 @@ export const createReview = async (req, res, next) => {
         return next(error);
       }
   
-      // Create a new review
       const newReview = new Review({
-        reviewer,   // The user who is creating the review
-        reviewee,   // The user who is being reviewed (the other party in the exchange)
-        exchange,   // The exchange being reviewed
-        rating,     // Rating out of 5
-        comment,    // Optional comment
+        reviewer,   
+        reviewee,  
+        exchange,   
+        rating,     
+        comment,    
       });
   
       await newReview.save();
   
-      // Optionally, you can update the reviewee's reviews array (if that's part of the schema)
       await User.updateOne(
         { _id: reviewee },
         { $push: { reviews: newReview._id } }

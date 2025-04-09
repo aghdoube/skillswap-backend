@@ -1,9 +1,25 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import { upload } from "../utils/Multer.js";
+
 
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+};
+
+
+const calculateProfileCompleteness = (user) => {
+  let fieldsCompleted = 0;
+  const totalFields = 6; 
+  
+  if (user.bio) fieldsCompleted++;
+  if (user.location) fieldsCompleted++;
+  if (user.profilePic) fieldsCompleted++;
+  if (user.skillsOffered.length > 0) fieldsCompleted++;
+  if (user.skillsWanted.length > 0) fieldsCompleted++;
+  
+  return Math.round((fieldsCompleted / totalFields) * 100);
 };
 
 
@@ -67,3 +83,54 @@ export const getUserProfile = async (req, res, next) => {
     next(error);  
   }
 }
+
+
+
+export const updateUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.bio = req.body.bio || user.bio;
+    user.location = req.body.location || user.location;
+    user.skillsOffered = req.body.skillsOffered ? JSON.parse(req.body.skillsOffered) : user.skillsOffered;
+    user.skillsWanted = req.body.skillsWanted ? JSON.parse(req.body.skillsWanted) : user.skillsWanted;
+
+    if (req.file) {
+      user.profilePic = `/uploads/profile_pics/${req.file.filename}`; 
+    }
+
+    user.profileCompletion = calculateProfileCompleteness(user);
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export const deleteUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await User.findByIdAndDelete(req.user._id);
+
+    res.json({
+      message: "User profile deleted successfully",
+    });
+  } catch (error) {
+    next(error);  
+  }
+};
