@@ -11,6 +11,10 @@ import reviewRoutes from "./src/routes/reviewRoutes.js";
 import notificationRoutes from "./src/routes/notificationRoutes.js";
 import locationRoutes from "./src/routes/locationRoutes.js";
 import categoryRoutes from "./src/routes/categoryRoutes.js";
+import activityLogRoutes from "./src/routes/activityLogRoutes.js";
+import banRoutes from "./src/routes/banRoutes.js";
+import reportRoutes from "./src/routes/reportRoutes.js";
+import adminRoutes from "./src/routes/adminRoutes.js";
 import Message from "./src/models/Message.js";
 import { Server } from "socket.io";
 import http from "http";
@@ -47,6 +51,10 @@ app.use("/api", messageRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/locations", locationRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/api/activityLogs", activityLogRoutes);
+app.use("/api/bans", banRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/admin", adminRoutes);
 
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);

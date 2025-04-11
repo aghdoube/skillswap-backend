@@ -13,10 +13,15 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: "profile_pics", 
-    format: async (req, file) => "png", 
-    public_id: (req, file) => `${req.user._id}-${Date.now()}`,
+  params: async (req, file) => {
+    if (!req.user) {
+      throw new Error("User not authenticated");
+    }
+    return {
+      folder: "profile_pics",
+      format: "png",
+      public_id: `${req.user._id}-${Date.now()}`, 
+    };
   },
 });
 

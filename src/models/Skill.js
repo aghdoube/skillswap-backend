@@ -14,7 +14,14 @@ const SkillSchema = new mongoose.Schema(
         type: { type: String, enum: ["Point"], default: "Point" },
         coordinates: { type: [Number], required: true }, 
       },
+      category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true,
+      },
+      
     },
+    
     { timestamps: true }
   );
   

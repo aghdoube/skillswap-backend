@@ -50,9 +50,22 @@ export const registerUser = async (req, res, next) => {
 export const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    const error = new Error("Please provide both email and password.");
+    error.status = 400;
+    return next(error);
+  }
+
   try {
+    console.log("Received login credentials:", { email, password }); //debugging
     const user = await User.findOne({ email });
+
     if (!user || !(await user.matchPassword(password))) {
+      console.log("No user found with email:", email);//debugging
+      console.log("Password match failed for user:", user);//debugging
+      console.log("Password mismatch for user:", email);
+
+
       const error = new Error("Invalid credentials");
       error.status = 401;
       return next(error);  
@@ -85,6 +98,43 @@ export const getUserProfile = async (req, res, next) => {
 }
 
 
+export const getAllUserProfiles = async (req, res, next) => {
+  try {
+    const users = await User.find({}).select("-password"); 
+    if (!users || users.length === 0) {
+      const error = new Error("No users found");
+      error.status = 404;
+      return next(error);  
+    }
+    res.json(users); 
+  } catch (error) {
+    next(error);  
+  }
+};
+
+export const getUserProfileById = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    
+    if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+      const error = new Error("Invalid user ID format");
+      error.status = 400;
+      return next(error);
+    }
+    
+    const user = await User.findById(userId).select("-password");
+    
+    if (!user) {
+      const error = new Error("User not found");
+      error.status = 404;
+      return next(error);
+    }
+    
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const updateUserProfile = async (req, res, next) => {
   try {
@@ -99,8 +149,8 @@ export const updateUserProfile = async (req, res, next) => {
     user.skillsOffered = req.body.skillsOffered ? JSON.parse(req.body.skillsOffered) : user.skillsOffered;
     user.skillsWanted = req.body.skillsWanted ? JSON.parse(req.body.skillsWanted) : user.skillsWanted;
 
-    if (req.file) {
-      user.profilePic = `/uploads/profile_pics/${req.file.filename}`; 
+    if (req.file && req.file.path) {
+      user.profilePic = req.file.path; 
     }
 
     user.profileCompletion = calculateProfileCompleteness(user);
@@ -109,12 +159,14 @@ export const updateUserProfile = async (req, res, next) => {
 
     res.json({
       message: "Profile updated successfully",
+      profilePic: user.profilePic, 
       user,
     });
   } catch (error) {
     next(error);
   }
 };
+
 
 
 export const deleteUserProfile = async (req, res, next) => {
