@@ -15,6 +15,7 @@ import activityLogRoutes from "./src/routes/activityLogRoutes.js";
 import banRoutes from "./src/routes/banRoutes.js";
 import reportRoutes from "./src/routes/reportRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
+import conversationRoutes from "./src/routes/conversationRoutes.js";
 import Message from "./src/models/Message.js";
 import { Server } from "socket.io";
 import http from "http";
@@ -55,6 +56,8 @@ app.use("/api/activityLogs", activityLogRoutes);
 app.use("/api/bans", banRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/conversations", conversationRoutes);
+
 
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);

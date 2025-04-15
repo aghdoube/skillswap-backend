@@ -18,9 +18,11 @@ router.post("/login", loginUser);
 router.get("/profile", protection, getUserProfile);
 router.put("/profile", protection, upload.single("profilePic"), updateUserProfile);
 router.delete("/profile", protection, deleteUserProfile);
-router.get("/profiles", protection, getAllUserProfiles);
+router.get("/profiles", protection, getAllUserProfiles); // Handles getting all user profiles
 router.get("/profile/:id", protection, getUserProfileById);
 
-
-
 export default router;
+
+
+
+
