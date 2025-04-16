@@ -1,16 +1,31 @@
+
 import Skill from "../models/Skill.js";
+import User from "../models/User.js";  
 
 export const addSkill = async (req, res, next) => {
   try {
-    const { name, proficiency, category } = req.body;
-    const skillCategory = await Category.findById(category);  
-    
-    if (!skillCategory) {
-      return res.status(400).json({ message: "Invalid category" });
-    }
+    const { name, proficiency, category, exchangeType, availability, location } = req.body;
 
-    const skill = new Skill({ ...req.body, user: req.user._id });
+    const skill = new Skill({
+      user: req.user._id,  
+      name,
+      category,
+      proficiency,
+      exchangeType,
+      availability,
+      location,
+    });
     await skill.save();
+
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: {
+        skillsOffered: {
+          skill: skill._id,  
+          level: proficiency, 
+        },
+      },
+    });
+
     res.status(201).json(skill);
   } catch (error) {
     next(error);

@@ -85,7 +85,9 @@ export const loginUser = async (req, res, next) => {
 
 export const getUserProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id).select("-password");
+    const user = await User.findById(req.user._id).select("-password")
+    .populate("skillsOffered.skill")
+    .populate("skillsWanted.skill");
     if (!user) {
       const error = new Error("User not found");
       error.status = 404;
@@ -139,6 +141,8 @@ export const getUserProfileById = async (req, res, next) => {
 export const updateUserProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
+    console.log("Skills Offered (Raw):", req.body.skillsOffered);
+
     
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -148,6 +152,7 @@ export const updateUserProfile = async (req, res, next) => {
     user.location = req.body.location || user.location;
     user.skillsOffered = req.body.skillsOffered ? JSON.parse(req.body.skillsOffered) : user.skillsOffered;
     user.skillsWanted = req.body.skillsWanted ? JSON.parse(req.body.skillsWanted) : user.skillsWanted;
+    
 
     if (req.file && req.file.path) {
       user.profilePic = req.file.path; 

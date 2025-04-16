@@ -25,8 +25,8 @@ const UserSchema = new mongoose.Schema({
     bio: {
         type: String,
     },
-    skillsOffered: [{ skill: String, level: String }],
-    skillsWanted: [{ skill: String, level: String }],
+    skillsOffered: [{ skill: String, description: String, level: String }],
+    skillsWanted: [{ skill: String, description: String, level: String }],
   },
   { timestamps: true }
 );

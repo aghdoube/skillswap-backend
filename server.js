@@ -28,9 +28,9 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*", 
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: true,
   },
 });
 
@@ -44,7 +44,7 @@ app.use(errorHandler);
 app.use("/api/auth", authRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.get("/", (req, res) => {
-    res.send("SkillSwap API is running...");
+  res.send("SkillSwap API is running...");
 });
 app.use("/api/skills", skillRoutes);
 app.use("/api/exchanges", exchangeRoutes);
@@ -60,10 +60,9 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);
-  
+
   socket.on("joinRoom", (userId) => {
     if (userId) {
       socket.join(userId);
@@ -77,10 +76,12 @@ io.on("connection", (socket) => {
 
   socket.on("sendMessage", async (messageData) => {
     //console.log("Received sendMessage event:", messageData);
-    
+
     try {
       if (!messageData.sender || !messageData.receiver || !messageData.text) {
-        socket.emit("messageError", { error: "Missing required message fields" });
+        socket.emit("messageError", {
+          error: "Missing required message fields",
+        });
         return;
       }
 
@@ -89,16 +90,16 @@ io.on("connection", (socket) => {
         receiver: messageData.receiver,
         text: messageData.text,
       });
-      
+
       await message.save();
       //console.log("Message saved:", message._id);
-      
+
       io.to(messageData.receiver).emit("receiveMessage", message);
-      
-      socket.emit("messageSent", { 
-        success: true, 
+
+      socket.emit("messageSent", {
+        success: true,
         messageId: message._id,
-        message: "Message sent successfully" 
+        message: "Message sent successfully",
       });
     } catch (error) {
       //console.error("Error sending message:", error);
@@ -106,32 +107,35 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on('sendNotification', async ({ userId, receiverId, type, message }) => {
-    const newNotification = new Notification({
-      userId: receiverId,
-      type,
-      message,
-    });
-  
-    await newNotification.save(); 
-  
-    io.to(receiverId).emit('getNotification', {
-      _id: newNotification._id,
-      message,
-      type,
-      createdAt: newNotification.createdAt,
-    });
-  });
+  socket.on(
+    "sendNotification",
+    async ({ userId, receiverId, type, message }) => {
+      const newNotification = new Notification({
+        userId: receiverId,
+        type,
+        message,
+      });
+
+      await newNotification.save();
+
+      io.to(receiverId).emit("getNotification", {
+        _id: newNotification._id,
+        message,
+        type,
+        createdAt: newNotification.createdAt,
+      });
+    }
+  );
 
   socket.on("markAsRead", async (messageId) => {
     //console.log("Marking message as read:", messageId);
-    
+
     try {
       if (!messageId) {
         socket.emit("readError", { error: "Missing messageId" });
         return;
       }
-      
+
       const message = await Message.findById(messageId);
       if (message && !message.read) {
         message.read = true;
@@ -141,7 +145,11 @@ io.on("connection", (socket) => {
       } else if (!message) {
         socket.emit("readError", { error: "Message not found" });
       } else {
-        socket.emit("messageRead", { success: true, messageId, info: "Message was already marked as read" });
+        socket.emit("messageRead", {
+          success: true,
+          messageId,
+          info: "Message was already marked as read",
+        });
       }
     } catch (error) {
       //console.error("Error marking message as read:", error);
@@ -151,9 +159,9 @@ io.on("connection", (socket) => {
 
   socket.on("getUnreadCount", async (userId) => {
     try {
-      const count = await Message.countDocuments({ 
-        receiver: userId, 
-        read: false 
+      const count = await Message.countDocuments({
+        receiver: userId,
+        read: false,
       });
       socket.emit("unreadCount", { count });
     } catch (error) {
@@ -172,5 +180,3 @@ server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`WebSocket server is running and listening for connections`);
 });
-
-
