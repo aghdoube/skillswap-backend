@@ -89,26 +89,22 @@ export const deleteMessage = async (req, res, next) => {
 
 
 export const markAsRead = async (req, res, next) => {
-  const { messageId } = req.params;  // Get the messageId from the URL
-  const userId = req.user._id;  // Get the user ID from the authenticated user
+  const { messageId } = req.params;  
+  const userId = req.user._id; 
 
   try {
-    // Find the message by its ID
     const message = await Message.findById(messageId);
 
     if (!message) {
       return res.status(404).json({ message: "Message not found" });
     }
 
-    // Check if the user is either the sender or receiver
     if (message.receiver.toString() !== userId.toString()) {
       return res.status(403).json({ message: "You are not authorized to mark this message as read" });
     }
 
-    // Update the message's "read" status
-    message.read = true; // Assuming there is a "read" field in the message schema
+    message.read = true; 
 
-    // Save the updated message
     await message.save();
 
     res.status(200).json({
@@ -116,6 +112,6 @@ export const markAsRead = async (req, res, next) => {
       message,
     });
   } catch (error) {
-    next(error);  // Pass errors to the error handling middleware
+    next(error);  
   }
 };

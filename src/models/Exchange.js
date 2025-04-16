@@ -26,13 +26,10 @@ const ExchangeSchema = new mongoose.Schema({
         time: String,
         location: String,
     },
-    messages: [
-        {
-            sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-            text: String,
-            timestamp: { type: Date, default: Date.now },
-        }
-    ]
+    relatedConversation: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Conversation"
+    }
 }, { timestamps: true });
 
 const Exchange = mongoose.model("Exchange", ExchangeSchema);

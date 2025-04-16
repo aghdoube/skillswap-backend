@@ -4,7 +4,7 @@ import {protection} from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get('/', protection, getConversations); // /api/conversations
+router.get('/', protection, getConversations); 
 router.post("/", protection, startConversation);
 
 

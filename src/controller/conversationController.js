@@ -29,13 +29,11 @@ export const startConversation = async (req, res, next) => {
   }
 
   try {
-    // Check if conversation exists
     let convo = await Conversation.findOne({
       participants: { $all: [senderId, recipientId] }
     });
 
     if (!convo) {
-      // Create new conversation
       convo = new Conversation({ participants: [senderId, recipientId] });
       await convo.save();
     }
