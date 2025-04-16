@@ -16,6 +16,7 @@ import banRoutes from "./src/routes/banRoutes.js";
 import reportRoutes from "./src/routes/reportRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
 import conversationRoutes from "./src/routes/conversationRoutes.js";
+import Notification from "./src/routes/notificationRoutes.js";
 import Message from "./src/models/Message.js";
 import { Server } from "socket.io";
 import http from "http";
@@ -57,6 +58,7 @@ app.use("/api/bans", banRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/conversations", conversationRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 io.on("connection", (socket) => {
@@ -102,6 +104,23 @@ io.on("connection", (socket) => {
       //console.error("Error sending message:", error);
       socket.emit("messageError", { error: "Failed to save or send message" });
     }
+  });
+
+  socket.on('sendNotification', async ({ userId, receiverId, type, message }) => {
+    const newNotification = new Notification({
+      userId: receiverId,
+      type,
+      message,
+    });
+  
+    await newNotification.save(); 
+  
+    io.to(receiverId).emit('getNotification', {
+      _id: newNotification._id,
+      message,
+      type,
+      createdAt: newNotification.createdAt,
+    });
   });
 
   socket.on("markAsRead", async (messageId) => {
