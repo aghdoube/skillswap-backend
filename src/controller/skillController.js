@@ -1,13 +1,19 @@
-
 import Skill from "../models/Skill.js";
-import User from "../models/User.js";  
+import User from "../models/User.js";
 
 export const addSkill = async (req, res, next) => {
   try {
-    const { name, proficiency, category, exchangeType, availability, location } = req.body;
+    const {
+      name,
+      proficiency,
+      category,
+      exchangeType,
+      availability,
+      location,
+    } = req.body;
 
     const skill = new Skill({
-      user: req.user._id,  
+      user: req.user._id,
       name,
       category,
       proficiency,
@@ -20,8 +26,8 @@ export const addSkill = async (req, res, next) => {
     await User.findByIdAndUpdate(req.user._id, {
       $push: {
         skillsOffered: {
-          skill: skill._id,  
-          level: proficiency, 
+          skill: skill._id,
+          level: proficiency,
         },
       },
     });
@@ -32,16 +38,24 @@ export const addSkill = async (req, res, next) => {
   }
 };
 
-
 export const getSkills = async (req, res, next) => {
   try {
-    const skills = await Skill.find().populate("user", "name profilePic").populate("category", "name");
-    res.status(200).json(skills);
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Id required" });
+    }
+
+    const providerUser = await User.findById(id);
+    if (!providerUser) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    res.status(200).json(providerUser.skillsOffered);
   } catch (error) {
     next(error);
   }
 };
-
 
 export const updateSkill = async (req, res, next) => {
   try {
@@ -52,7 +66,11 @@ export const updateSkill = async (req, res, next) => {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
-    const updatedSkill = await Skill.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedSkill = await Skill.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     res.status(200).json(updatedSkill);
   } catch (error) {
     next(error);
@@ -131,23 +149,21 @@ export const searchSkills = async (req, res, next) => {
   }
 };
 
-
-
 export const matchUsers = async (userId) => {
   try {
     const user = await User.findById(userId);
-    
+
     if (!user) {
       throw new Error("User not found");
     }
 
-    const offeredSkills = user.skillsOffered.map(skill => skill.skill);
-    const wantedSkills = user.skillsWanted.map(skill => skill.skill);
+    const offeredSkills = user.skillsOffered.map((skill) => skill.skill);
+    const wantedSkills = user.skillsWanted.map((skill) => skill.skill);
 
     const matchingUsers = await User.find({
       $or: [
         { "skillsOffered.skill": { $in: wantedSkills } },
-        { "skillsWanted.skill": { $in: offeredSkills } }
+        { "skillsWanted.skill": { $in: offeredSkills } },
       ],
     }).select("name email skillsOffered skillsWanted");
 
@@ -156,4 +172,3 @@ export const matchUsers = async (userId) => {
     throw error;
   }
 };
-
