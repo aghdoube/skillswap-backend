@@ -52,13 +52,10 @@ export const loginUser = async (req, res, next) => {
   }
 
   try {
-    console.log("Received login credentials:", { email, password }); //debugging
     const user = await User.findOne({ email });
 
     if (!user || !(await user.matchPassword(password))) {
-      console.log("No user found with email:", email); //debugging
-      console.log("Password match failed for user:", user); //debugging
-      console.log("Password mismatch for user:", email);
+    
 
       const error = new Error("Invalid credentials");
       error.status = 401;
@@ -92,6 +89,16 @@ export const getUserProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getUsers = async (req, res, next) => {
+  try {
+    const users = await User.find();  
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch users", error: err });
+  }
+};
+
 
 export const getAllUserProfiles = async (req, res, next) => {
   try {

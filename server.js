@@ -26,6 +26,17 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
+const corsOptions = {
+  origin: "http://localhost:5173",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
@@ -33,10 +44,6 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 connectDB();
 app.use(errorHandler);
@@ -66,17 +73,13 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", (userId) => {
     if (userId) {
       socket.join(userId);
-      //console.log(`User ${userId} joined room: ${userId}`);
       socket.emit("roomJoined", { userId, success: true });
     } else {
-      //console.log("Join room attempt with missing userId");
       socket.emit("roomJoined", { success: false, error: "Missing userId" });
     }
   });
 
   socket.on("sendMessage", async (messageData) => {
-    //console.log("Received sendMessage event:", messageData);
-
     try {
       if (!messageData.sender || !messageData.receiver || !messageData.text) {
         socket.emit("messageError", {
@@ -92,7 +95,6 @@ io.on("connection", (socket) => {
       });
 
       await message.save();
-      //console.log("Message saved:", message._id);
 
       io.to(messageData.receiver).emit("receiveMessage", message);
 
@@ -102,7 +104,6 @@ io.on("connection", (socket) => {
         message: "Message sent successfully",
       });
     } catch (error) {
-      //console.error("Error sending message:", error);
       socket.emit("messageError", { error: "Failed to save or send message" });
     }
   });
@@ -128,8 +129,6 @@ io.on("connection", (socket) => {
   );
 
   socket.on("markAsRead", async (messageId) => {
-    //console.log("Marking message as read:", messageId);
-
     try {
       if (!messageId) {
         socket.emit("readError", { error: "Missing messageId" });
@@ -152,7 +151,6 @@ io.on("connection", (socket) => {
         });
       }
     } catch (error) {
-      //console.error("Error marking message as read:", error);
       socket.emit("readError", { error: "Failed to mark message as read" });
     }
   });
@@ -165,13 +163,12 @@ io.on("connection", (socket) => {
       });
       socket.emit("unreadCount", { count });
     } catch (error) {
-      //console.error("Error getting unread count:", error);
       socket.emit("unreadCountError", { error: "Failed to get unread count" });
     }
   });
 
   socket.on("disconnect", () => {
-    //console.log("User disconnected: " + socket.id);
+    console.log("User disconnected: " + socket.id);
   });
 });
 

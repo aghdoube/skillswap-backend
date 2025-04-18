@@ -19,7 +19,6 @@ export const sendmessage = async (req, res, next) => {
     const message = new Message({ sender, receiver, text });
     await message.save();
 
-    // Find or create the conversation
     let conversation = await Conversation.findOne({
       participants: { $all: [sender, receiver] },
     });
@@ -47,19 +46,36 @@ export const sendmessage = async (req, res, next) => {
 
 
 export const getMessages = async (req, res, next) => {
-    const userId = req.user._id;
-    try {
-        const messages = await Message.find({
-            $or: [
-                { sender: userId },
-                { receiver: userId }
-            ]
-        }).populate('sender', 'name email').populate('receiver', 'name email');
-        res.status(200).json(messages);
-    } catch (error) {
-        next(error);
-    }
+  const userId = req.user._id;
+  const { receiverId } = req.query; 
+
+  console.log("📥 [GET /api/messages] Called by:", userId);
+
+  if (!receiverId) {
+    return res.status(400).json({ error: 'Receiver ID is required' });
+  }
+
+  try {
+    const messages = await Message.find({
+      $or: [
+        { sender: userId, receiver: receiverId },
+        { sender: receiverId, receiver: userId }
+      ]
+    })
+      .populate('sender', 'name email')
+      .populate('receiver', 'name email')
+      .sort({ createdAt: 1 });  
+
+    console.log("📦 Messages found:", messages.length);
+    res.status(200).json(messages);
+  } catch (error) {
+    console.error("❌ Error fetching messages:", error);
+    next(error);
+  }
 };
+
+
+
 
 
 export const deleteMessage = async (req, res, next) => {
@@ -68,6 +84,7 @@ export const deleteMessage = async (req, res, next) => {
 
   try {
     const message = await Message.findById(messageId);
+  
 
     if (!message) {
       return res.status(404).json({ message: "Message not found" });
