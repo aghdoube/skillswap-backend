@@ -77,8 +77,7 @@ export const getUserProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id)
       .select("-password")
-      .populate("skillsOffered.skill")
-      .populate("skillsWanted.skill");
+
     if (!user) {
       const error = new Error("User not found");
       error.status = 404;
